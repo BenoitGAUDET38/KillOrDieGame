@@ -46,7 +46,7 @@ public class PlayerBehaviour : MonoBehaviour
             return;
 		}
 
-        if (Input.GetKey(KeyCode.Keypad4) || Input.GetKey(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Keypad4) || Input.GetKey(KeyCode.Return))
 		{
             Vector3 thePosition = transform.TransformPoint(Vector3.up);
             Instantiate(projectilePrefab, thePosition, transform.rotation);
