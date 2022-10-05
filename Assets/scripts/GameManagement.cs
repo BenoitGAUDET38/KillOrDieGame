@@ -38,12 +38,15 @@ public class GameManagement : MonoBehaviour
         player = Instantiate(playerPrefab, playerSpawnPoint, transform.rotation) as GameObject;
         camera.GetComponent<CameraLogic>().setPlayer(player.transform);
 
+        LoadScore();
         updateBestScore();
     }
 
     // Update is called once per frame
     void Update()
     {
+        checkStoppingGame();
+
         if (endGame)
 		{
             if (!Input.GetKey(KeyCode.Space))
@@ -64,6 +67,15 @@ public class GameManagement : MonoBehaviour
 		score++;
 	}
 
+    void checkStoppingGame()
+	{
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            SaveScore();
+            Application.Quit();
+        }
+    }
+
     void endingGame()
 	{
         endGame = true;
@@ -71,6 +83,7 @@ public class GameManagement : MonoBehaviour
         // manage best score
         if (score > bestScore)
             bestScore = score;
+            SaveScore();
 
         // Show after game UI
         textFinalScore.SetActive(true);
@@ -80,13 +93,6 @@ public class GameManagement : MonoBehaviour
 
     void setupNewGame()
 	{
-        // destroy all enemies
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        foreach (GameObject enemy in enemies)
-        {
-            Destroy(enemy);
-		}
-
         // reset score
         score = 0;
         updateBestScore();
@@ -121,8 +127,44 @@ public class GameManagement : MonoBehaviour
         if (timerEnemy > 2)
         {
             timerEnemy = 0;
-            Vector3 enemyPosition = new Vector3(transform.position.x + Random.Range(-9, 9), transform.position.y + Random.Range(-9, 9), 0);
-            Instantiate(enemyPrefab, enemyPosition, transform.rotation);
+
+            // stopping enemy to spawn near the player
+            float spawnRange = 3f;
+            int emergencyBreak = 20;
+            Vector3 enemyPosition;
+            do
+            {
+                enemyPosition = new Vector3(transform.position.x + Random.Range(-9, 9), transform.position.y + Random.Range(-9, 9), 0);
+                if (Vector3.Distance(enemyPosition, player.transform.position) > spawnRange)
+				{
+                    Instantiate(enemyPrefab, enemyPosition, transform.rotation);
+                    break;
+                }
+
+                emergencyBreak--;
+            }
+            while (emergencyBreak > 0);
         }
 	}
+
+    void LoadScore()
+    {
+        if (PlayerPrefs.HasKey("SavedBestScore"))
+        {
+            bestScore = PlayerPrefs.GetInt("SavedBestScore");
+            Debug.Log("Game data loaded!");
+        }
+        else
+		{
+            bestScore = 0;
+            Debug.LogError("There is no save data!");
+        }
+    }
+
+    void SaveScore()
+    {
+        PlayerPrefs.SetInt("SavedBestScore", bestScore);
+        PlayerPrefs.Save();
+        Debug.Log("Game data saved!");
+    }
 }
