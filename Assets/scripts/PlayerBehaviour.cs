@@ -10,8 +10,10 @@ public class PlayerBehaviour : MonoBehaviour
 
     private Rigidbody2D rb;
     private float timerAttackRate = 0f;
+    private float xAxis, yAxis;
+    private float xShoot, yShoot;
 
-	private void Awake()
+    private void Awake()
 	{
         rb = GetComponent<Rigidbody2D>();
 	}
@@ -19,39 +21,73 @@ public class PlayerBehaviour : MonoBehaviour
 	// Update is called once per frame
 	void Update()
     {
+        getInputs();
+    }
+
+	private void FixedUpdate()
+	{
         move();
-        fire();
+        attack();
+    }
+
+    void getInputs()
+    {
+        xAxis = Input.GetAxis("Horizontal");
+        yAxis = Input.GetAxis("Vertical");
+
+        xShoot = Input.GetAxis("xShoot");
+        yShoot = Input.GetAxis("yShoot");
     }
 
     void move()
 	{
-        float inputX = Input.GetAxis("Horizontal");
-        float inputY = Input.GetAxis("Vertical");
-
-        rb.velocity = new Vector2(inputX, inputY).normalized * moveSpeed;
-
-        Vector2 moveDirection = rb.velocity;
-        if (moveDirection != Vector2.zero)
-        {
-            float angle = Mathf.Atan2(-moveDirection.x, moveDirection.y) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-        }
+        Vector2 moveDirection = new Vector2(xAxis, yAxis).normalized;
+        rb.velocity = moveDirection * moveSpeed;
     }
 
-    void fire()
+    void attack()
 	{
+        // check if the player attack isn't on cooldown
         if (timerAttackRate < attackRate)
 		{
             timerAttackRate += Time.deltaTime;
             return;
 		}
 
-        if (Input.GetKey(KeyCode.Keypad4) || Input.GetKey(KeyCode.Return))
-		{
-            Vector3 thePosition = transform.TransformPoint(Vector3.up);
-            Instantiate(projectilePrefab, thePosition, transform.rotation);
-            timerAttackRate = 0f;
+        // check if an attack button is registered
+        if (xShoot == 0 && yShoot == 0)
+            return;
+
+        int projectileRotation;
+        Vector3 projectilePosition;
+
+        if (xShoot > 0)
+        {
+            projectileRotation = -90;
+            projectilePosition = Vector3.right;
         }
+        else if (xShoot < 0)
+        {
+            projectileRotation = 90;
+            projectilePosition = Vector3.left;
+        }
+        else if (yShoot > 0)
+        {
+            projectileRotation = 0;
+            projectilePosition = Vector3.up;
+        }
+        else
+        {
+            projectileRotation = 180;
+            projectilePosition = Vector3.down;
+        }
+
+        Vector3 finalProjectilePosition = transform.TransformPoint(projectilePosition);
+        Quaternion finalProjectileRotation = Quaternion.Euler(new Vector3(0, 0, projectileRotation));
+        Instantiate(projectilePrefab, finalProjectilePosition, finalProjectileRotation);
+
+        // reinitialize attack cooldown
+        timerAttackRate = 0f;
 	}
 
     private void OnCollisionEnter2D(Collision2D collision)
