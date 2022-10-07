@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class EnemyBehaviour : MonoBehaviour
 {
-    private Transform target;
     public float moveSpeed = 5;
+    public int life = 1;
+
+    private Transform target;
     private Rigidbody2D rb;
 
     // Start is called before the first frame update
@@ -37,5 +39,22 @@ public class EnemyBehaviour : MonoBehaviour
         Vector2 direction = targetPosition - current;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+    }
+
+    // logic when enemy is hit by a projectile
+    void getHitByProjectile()
+	{
+        life--;
+        if (life <= 0)
+            Destroy(gameObject);
+	}
+
+
+    private void OnCollisionEnter2D(Collision2D collision)
+	{
+        if (collision.gameObject.tag == "Projectile")
+        {
+            getHitByProjectile();
+        }
     }
 }

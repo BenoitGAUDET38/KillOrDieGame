@@ -22,13 +22,9 @@ public class ProjectileBehaviour : MonoBehaviour
 
 	private void OnCollisionEnter2D(Collision2D collision)
 	{
-        if (collision.gameObject.name != "Player")
+        if (collision.gameObject.tag != "Joueur" && collision.gameObject.tag != "Projectile")
         {
             Destroy(gameObject);
         }
-        if (collision.gameObject.tag == "Enemy")
-		{
-            Destroy(collision.gameObject);
-		}
 	}
 }
