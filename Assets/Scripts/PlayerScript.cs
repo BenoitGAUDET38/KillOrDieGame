@@ -82,7 +82,7 @@ public class PlayerScript : MonoBehaviour
             projectilePosition = Vector3.down;
         }
 
-        Vector3 finalProjectilePosition = transform.TransformPoint(projectilePosition * 0.75f);
+        Vector3 finalProjectilePosition = transform.TransformPoint(projectilePosition * 0.5f);
         Quaternion finalProjectileRotation = Quaternion.Euler(new Vector3(0, 0, projectileRotation));
         Instantiate(projectilePrefab, finalProjectilePosition, finalProjectileRotation);
 

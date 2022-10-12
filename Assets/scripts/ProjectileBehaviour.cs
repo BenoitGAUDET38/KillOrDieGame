@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ProjectileBehaviour : MonoBehaviour
 {
-    public float speed = 40f;
+    public float speed = 20f;
     private Rigidbody2D rb;
 
     // Start is called before the first frame update
